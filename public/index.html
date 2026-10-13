@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LanBeam — drop files to any device. No cloud, no trace.</title>
+  <meta name="description" content="Send files directly between devices over encrypted WebRTC. No accounts, no uploads, no cloud." />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+</head>
+<body>
+  <div class="bg"></div>
+
+  <header class="topbar">
+    <div class="logo">⚡ LanBeam</div>
+    <div class="tagline">device-to-device · encrypted · no cloud</div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view">
+      <h1>Drop files to any device<br />on your network.</h1>
+      <p class="sub">No accounts. No uploads. Files travel directly between devices over an encrypted WebRTC connection — the server never sees a single byte.</p>
+      <div class="actions">
+        <button id="btn-send" class="btn primary">📤 Send files</button>
+        <button id="btn-receive" class="btn">📥 Receive files</button>
+      </div>
+      <div class="how">
+        <div><span>1</span> Sender picks files, gets a code</div>
+        <div><span>2</span> Receiver enters the code (or scans the QR)</div>
+        <div><span>3</span> Files fly device-to-device, encrypted</div>
+      </div>
+    </section>
+
+    <!-- SEND -->
+    <section id="view-send" class="view hidden">
+      <h2>Send files</h2>
+      <div id="send-code-card" class="card hidden">
+        <div class="code-row">
+          <div>
+            <div class="label">Room code</div>
+            <div id="room-code" class="code">······</div>
+          </div>
+          <div id="qr" class="qr"></div>
+        </div>
+        <div class="row">
+          <input id="share-link" class="input" readonly />
+          <button id="btn-copy" class="btn small">Copy link</button>
+        </div>
+        <div id="send-status" class="status">Waiting for receiver…</div>
+      </div>
+
+      <div id="dropzone" class="dropzone">
+        <div class="dz-inner">📁<br />Drag &amp; drop files here<br /><span>or</span><br /></div>
+        <label class="btn small">Choose files<input id="file-input" type="file" multiple hidden /></label>
+      </div>
+
+      <ul id="send-list" class="file-list"></ul>
+
+      <div class="card hidden" id="note-card">
+        <div class="label">Send a note</div>
+        <div class="row">
+          <input id="note-input" class="input" placeholder="Type a short message…" maxlength="280" />
+          <button id="btn-note" class="btn small">Send</button>
+        </div>
+      </div>
+
+      <button class="btn ghost back" data-back>← Back</button>
+    </section>
+
+    <!-- RECEIVE -->
+    <section id="view-receive" class="view hidden">
+      <h2>Receive files</h2>
+      <div class="card">
+        <div class="label">Enter the 6-character room code</div>
+        <div class="row">
+          <input id="join-code" class="input code-input" placeholder="ABC123" maxlength="6" autocomplete="off" />
+          <button id="btn-join" class="btn primary small">Connect</button>
+        </div>
+        <div id="recv-status" class="status">Not connected.</div>
+      </div>
+      <ul id="recv-list" class="file-list"></ul>
+      <div id="recv-notes" class="notes"></div>
+      <button class="btn ghost back" data-back>← Back</button>
+    </section>
+  </main>
+
+  <footer>Made for people who'd rather not upload. ⚡</footer>
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

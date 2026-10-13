@@ -1,0 +1,1 @@
+{"author":"Dhanush Nehru","dependencies":{"ws":"^8.18.0"},"description":"Drop files to any device on your network. No accounts, no cloud, no trace.","engines":{"node":">=18"},"keywords":["webrtc","file-sharing","p2p","privacy","local-network"],"license":"MIT","main":"server.js","name":"lanbeam","scripts":{"start":"node server.js"},"version":"1.0.0"}
