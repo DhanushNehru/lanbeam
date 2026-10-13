@@ -49,6 +49,27 @@
     el.className = 'status' + (cls ? ' ' + cls : '');
   }
 
+  // the QR library loads with `defer`, so retry briefly in case the CDN
+  // is slower than the room creation round-trip
+  function renderQR(link) {
+    let tries = 0;
+    const tick = () => {
+      if (window.QRCode) {
+        try {
+          $('#qr').innerHTML = '';
+          new QRCode($('#qr'), { text: link, width: 112, height: 112 });
+        } catch {
+          $('#qr').textContent = 'QR unavailable — share the link';
+        }
+      } else if (++tries < 20) {
+        setTimeout(tick, 200);
+      } else {
+        $('#qr').textContent = 'QR unavailable offline — share the link';
+      }
+    };
+    tick();
+  }
+
   /* ---------------- signaling ---------------- */
 
   function connect(onOpen) {
@@ -70,14 +91,7 @@
         const link = location.origin + location.pathname + '?room=' + roomCode;
         $('#share-link').value = link;
         $('#send-code-card').classList.remove('hidden');
-        try {
-          if (window.QRCode) {
-            $('#qr').innerHTML = '';
-            new QRCode($('#qr'), { text: link, width: 112, height: 112 });
-          } else {
-            $('#qr').textContent = 'QR unavailable offline — share the link';
-          }
-        } catch { $('#qr').textContent = 'QR unavailable — share the link'; }
+        renderQR(link);
         break;
 
       case 'joined':
@@ -320,7 +334,7 @@
 
   function onFileStart(msg) {
     if (!incoming.has(msg.index)) {
-      renderRecvRow({ index: msg.index, name: msg.name, size: msg.size });
+      renderRecvRow({ index: msg.index, name: msg.name, size: msg.size, mime: msg.mime });
       seenMeta.add(msg.index);
     }
   }
