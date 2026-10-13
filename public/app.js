@@ -223,23 +223,33 @@
   async function pumpQueue() {
     if (pumping || !dc || dc.readyState !== 'open') return;
     pumping = true;
-    for (let i = 0; i < files.length; i++) {
-      if (sentSet.has(i)) continue;
-      await sendFile(i);
-      sentSet.add(i);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        if (sentSet.has(i)) continue;
+        await sendFile(i);
+        sentSet.add(i);
+      }
+      dc.send(JSON.stringify({ type: 'done' }));
+      setStatus($('#send-status'), 'All files sent. 🎉', 'ok');
+    } catch (err) {
+      setStatus($('#send-status'), 'Transfer interrupted — the other device disconnected.', 'warn');
     }
-    dc.send(JSON.stringify({ type: 'done' }));
-    setStatus($('#send-status'), 'All files sent. 🎉', 'ok');
     pumping = false;
+  }
+
+  function dcAlive() {
+    if (!dc || dc.readyState !== 'open') throw new Error('connection lost');
   }
 
   async function sendFile(i) {
     const f = files[i];
     const row = sendRows.get(i);
+    dcAlive();
     dc.send(JSON.stringify({ type: 'file-start', index: i, name: f.name, size: f.size, mime: f.type || 'application/octet-stream' }));
     let offset = 0;
     const t0 = performance.now();
     while (offset < f.size) {
+      dcAlive();
       while (dc.bufferedAmount > 1024 * 1024) await new Promise((r) => setTimeout(r, 40));
       const buf = await f.slice(offset, offset + CHUNK).arrayBuffer();
       dc.send(buf);
@@ -395,7 +405,7 @@
 
   const dz = $('#dropzone');
   const fi = $('#file-input');
-  dz.onclick = (e) => { if (e.target !== fi) fi.click(); };
+  dz.onclick = (e) => { if (!e.target.closest('label')) fi.click(); };
   fi.onchange = () => { addFiles(fi.files); fi.value = ''; };
   ['dragover', 'dragenter'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('over'); }));
   ['dragleave', 'drop'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove('over'); }));
